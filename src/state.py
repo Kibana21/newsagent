@@ -8,10 +8,12 @@ class NewsItem(TypedDict, total=False):
     summary: str
     source: str           # "tavily" | "rss" | "arxiv" | "github" | "huggingface" | "hackernews" | "reddit" | "youtube"
     published_at: str     # ISO 8601
-    insurance_score: int  # 1 (low) | 2 (medium) | 3 (high); default 1 until Phase 3
-    competitor: bool      # default False until Phase 3
-    regulatory: bool      # default False until Phase 3
-    buzz_score: int       # count of sources the item appeared in; default 1 until Phase 3
+    insurance_score: int  # 1 (low) | 2 (medium) | 3 (high)
+    competitor: bool      # True if mentions a competitor insurer
+    regulatory: bool      # True if mentions MAS/IMDA/HKIA/OJK
+    buzz_score: int       # count of sources the item appeared in
+    action_signal: str    # "act" | "watch" | "aware"
+    sentiment: str        # "opportunity" | "risk" | "neutral"
 
 
 class CategorizedNews(TypedDict, total=False):

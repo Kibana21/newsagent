@@ -50,6 +50,13 @@ def mock_llm(monkeypatch):
         "boardroom": json.dumps([{"url": "https://x/1", "sentence": "Boardroom note."}]),
         "build": json.dumps([{"url": "https://x/1", "sentence": "Build this at AIA."}]),
         "paper": json.dumps({"url": "https://x/1", "title": "T", "explainer": "Explains..."}),
+        "editors_take": "OpenAI's latest move is a direct threat to enterprise incumbents.",
+        "heatmap": json.dumps({"openai": "Released GPT-5 with multimodal reasoning.", "google": None,
+                               "anthropic": None, "meta": None, "mistral": None, "xai": None}),
+        "steal": json.dumps({"title": "AI Claims Triage Bot", "what": "Build an LLM triage tool.",
+                             "why_now": "GPT-5 makes this feasible today.", "domain": "claims",
+                             "effort": "weeks", "team": "Digital & Technology", "confidence": "high"}),
+        "week_review": "This week GenAI disrupted insurance underwriting at scale.",
     }
 
     def _invoke(prompt: str):
@@ -60,6 +67,10 @@ def mock_llm(monkeypatch):
             "boardroom" if "boardroom" in p else
             "build" if "build this at aia" in p else
             "paper" if "paper" in p or "explainer" in p else
+            "editors_take" if "intelligence brief" in p or "editor" in p else
+            "heatmap" if "ai labs" in p or "openai" in p and "google" in p else
+            "steal" if "steal" in p or "product idea" in p else
+            "week_review" if "week in review" in p or "defining theme" in p else
             "curate"
         )
         m = MagicMock()
