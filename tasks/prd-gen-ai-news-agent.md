@@ -14,6 +14,51 @@ The reference implementation (by shubhamshardul-work) exists as a working protot
 
 ---
 
+## Tech Stack
+
+| Layer | Choice | Reason |
+|---|---|---|
+| **Language** | Python 3.11+ | Broad AI/ML ecosystem, async support |
+| **Orchestration** | LangGraph | Native parallel fan-out, typed state, built-in retry |
+| **LLM** | Google Gemini 2.5 Flash via `langchain-google-genai` | Fast, cheap, large context window for bulk curation |
+| **GCP Auth** | Service account JSON (`video-key.json`) via `google-auth` | Authenticates to Vertex AI / Gemini without an API key |
+| **Scheduling** | APScheduler (`apscheduler`) | Cron-style scheduling inside a long-running Python process; no external infra needed |
+| **Web search** | Tavily API via `langchain-tavily` | Purpose-built for LLM pipelines, returns pre-summarised content |
+| **RSS parsing** | `feedparser` | Battle-tested, handles malformed feeds gracefully |
+| **HTTP client** | `requests` | Simple sync calls for GitHub, HuggingFace, HN, Reddit APIs |
+| **Email delivery** | `smtplib` (stdlib) + `email` (stdlib) | No extra deps; SMTP-SSL to Gmail on port 465 |
+| **Markdown → HTML** | `markdown` (Python) | Converts report to inline-CSS HTML for Gmail |
+| **YouTube transcripts** | `youtube-transcript-api` | Retrieves captions without YouTube Data API quota |
+| **State persistence** | Plain JSON files in `state/` | Zero-infra, human-readable, easy to inspect |
+| **Env management** | `python-dotenv` | Loads `.env` for local runs |
+| **Testing** | `pytest` + `unittest.mock` | Node-level isolation without live API calls |
+| **Dependency management** | `requirements.txt` with pinned versions | Reproducible installs |
+
+### Runtime Model
+
+```
+python scheduler.py          # starts the long-running process
+       │
+       └── APScheduler (cron: 08:00 SGT daily)
+              │
+              └── python main.py   # executes the full LangGraph pipeline
+                     │
+                     ├── [parallel] tavily_node
+                     ├── [parallel] rss_node
+                     ├── [parallel] arxiv_node
+                     ├── [parallel] github_node
+                     ├── [parallel] hf_node
+                     ├── [parallel] hn_node
+                     ├── [parallel] reddit_node
+                     └── [parallel] youtube_node
+                            │
+                            └── aggregate_node → curate_node → summarize_node → email_node
+```
+
+`scheduler.py` is the only long-running process. `main.py` can also be invoked directly for manual/test runs. No Docker, no GitHub Actions, no cloud infra required.
+
+---
+
 ## Goals
 
 - Ingest GenAI news from 8 heterogeneous sources in parallel with a configurable lookback window
@@ -173,7 +218,7 @@ The reference implementation (by shubhamshardul-work) exists as a working protot
 - [ ] Response parsed as JSON with four category keys; retry on parse failure up to 2 times
 - [ ] Validates all four keys exist; raises `ValueError` if malformed after retries
 - [ ] Returns flat `curated_news` list and `categorized_news` dict
-- [ ] Uses `GOOGLE_API_KEY` from environment; raises `EnvironmentError` if missing
+- [ ] Authenticates using the service account JSON at the path in `GOOGLE_APPLICATION_CREDENTIALS` env var (pointing to `video-key.json`); raises `EnvironmentError` with a clear message if the file is missing or the path is unset
 
 ---
 
@@ -230,7 +275,7 @@ The reference implementation (by shubhamshardul-work) exists as a working protot
 
 **Acceptance Criteria:**
 - [ ] `main.py` accepts `--query` (default: "latest breakthroughs, releases, and news in Generative AI"), `--days` (default: 2), `--output` (default: `reports/`)
-- [ ] Validates `GOOGLE_API_KEY` and `TAVILY_API_KEY` at startup; prints actionable error and exits if missing
+- [ ] Validates `GOOGLE_APPLICATION_CREDENTIALS` (path to `video-key.json`) and `TAVILY_API_KEY` at startup; prints actionable error and exits if missing or file not found
 - [ ] Creates `reports/`, `state/` directories if absent
 - [ ] Saves Markdown report to `reports/YYYY-MM-DD_report.md`
 - [ ] Saves full JSON state to `state/YYYY-MM-DD_state.json` (with `default=str` serializer)
@@ -238,16 +283,17 @@ The reference implementation (by shubhamshardul-work) exists as a working protot
 
 ---
 
-### US-017: Configure GitHub Actions for daily automation
-**Description:** As an operator, I want the agent to run daily without manual intervention so that subscribers receive fresh reports automatically.
+### US-017: Implement Python scheduler for daily automation
+**Description:** As an operator, I want the agent to run daily at 8:00 AM SGT automatically by simply keeping a Python process alive, with no external CI/CD or cloud infrastructure required.
 
 **Acceptance Criteria:**
-- [ ] `.github/workflows/daily_news.yml` triggers on `schedule: cron: '0 0 * * *'` (8:00 AM SGT = 00:00 UTC)
-- [ ] Workflow also triggerable via `workflow_dispatch` for manual runs
-- [ ] All required secrets documented in workflow file comments: `GOOGLE_API_KEY`, `TAVILY_API_KEY`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, optionally `GOOGLE_SHEET_URL`, `GITHUB_TOKEN`
-- [ ] Workflow installs dependencies, runs `python main.py`, uploads `reports/` as artifact
-- [ ] `state/sent_urls.json` persisted across runs using GitHub Actions cache keyed by `sent-urls-v1`
-- [ ] Workflow fails fast and surfaces error logs on node failure
+- [ ] `scheduler.py` at project root uses APScheduler (`BlockingScheduler`) to trigger `main.py` logic on a cron schedule: `hour=8, minute=0, timezone="Asia/Singapore"`
+- [ ] Scheduler logs next scheduled run time on startup
+- [ ] Running `python scheduler.py` is the only command needed to start automated daily delivery
+- [ ] `python main.py` still works independently for manual/test runs without touching the scheduler
+- [ ] If the pipeline raises an unhandled exception, the scheduler logs the full traceback but continues running (does not crash the process) so the next day's run is not affected
+- [ ] `state/sent_urls.json` persists naturally on disk between runs since scheduler and pipeline share the same filesystem
+- [ ] All required env vars documented in `.env.example`: `GOOGLE_APPLICATION_CREDENTIALS` (path to `video-key.json`), `TAVILY_API_KEY`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, optionally `GOOGLE_SHEET_URL`, `GITHUB_TOKEN`
 
 ---
 
@@ -295,9 +341,9 @@ The reference implementation (by shubhamshardul-work) exists as a working protot
 - FR-14: Each item displays a human-readable freshness tag computed from `published_at`
 - FR-15: Source Health footer appears in every email showing per-source item count and status
 - FR-16: Sent URLs logged to `state/sent_urls.json` after each successful send; pruned to 7-day window
-- FR-17: `sent_urls.json` persisted across GitHub Actions runs via cache
+- FR-17: `sent_urls.json` persisted on disk between scheduler runs; no external cache needed
 - FR-18: Monthly digest runs on the 1st of each month, requires no new API calls
-- FR-19: All API keys configured via environment variables; nothing hardcoded
+- FR-19: All credentials configured via environment variables or files; nothing hardcoded — `GOOGLE_APPLICATION_CREDENTIALS` points to `video-key.json` on disk; `video-key.json` must never be committed to source control
 
 ---
 
@@ -318,7 +364,7 @@ The reference implementation (by shubhamshardul-work) exists as a working protot
 ## Technical Considerations
 
 - **Framework**: LangGraph for orchestration; `TypedDict` for state; no Pydantic models in the pipeline hot path
-- **LLM**: `langchain-google-genai` with `ChatGoogleGenerativeAI(model="gemini-2.5-flash")` for curation and summarization
+- **LLM**: `langchain-google-genai` with `ChatGoogleGenerativeAI(model="gemini-2.5-flash")` for curation and summarization; authenticated via `google.oauth2.service_account.Credentials` loaded from `video-key.json` — pass credentials object directly to the `ChatGoogleGenerativeAI` constructor rather than relying on `GOOGLE_API_KEY`
 - **Insurance keywords**: maintain a module-level constant `INSURANCE_KEYWORDS` used across curation prompts and HN filtering: `["insurance", "underwriting", "claims", "actuarial", "reinsurance", "insurtech", "life insurance", "MAS", "IMDA", "finserv", "financial services"]`
 - **Competitor list**: module-level constant `COMPETITOR_INSURERS`: `["Prudential", "Great Eastern", "Manulife", "FWD", "Allianz", "AXA", "Sunlife", "Zurich"]`
 - **Buzz scoring**: title similarity computed with `difflib.SequenceMatcher`; threshold 0.9 is sufficient for near-duplicate detection without heavy NLP deps
@@ -327,7 +373,7 @@ The reference implementation (by shubhamshardul-work) exists as a working protot
 - **YouTube scraping**: isolated in a helper function for easy replacement with YouTube Data API v3
 - **arXiv lag**: query with 2-day buffer beyond `state["days"]`
 - **Gmail SMTP**: `smtplib.SMTP_SSL` on port 465; requires Gmail App Password
-- **GitHub Actions cache**: use `actions/cache` on `state/sent_urls.json` with key `sent-urls-v1` to persist across daily runs
+- **Scheduler**: `APScheduler` `BlockingScheduler` with `Asia/Singapore` timezone; `pytz` or `zoneinfo` (Python 3.9+) for timezone handling; add `apscheduler` to `requirements.txt`
 
 ---
 
@@ -349,5 +395,5 @@ The reference implementation (by shubhamshardul-work) exists as a working protot
 2. Should `insurance_score` thresholds be tunable via a config file rather than hardcoded in the prompt, to let non-developers adjust relevance calibration?
 3. Should competitor flagging include AIA's own press releases as a "self-monitoring" source?
 4. Should the YouTube node be replaced with YouTube Data API v3 for reliability, given HTML scraping brittleness?
-5. Should failed runs send an alert to an admin email rather than silently failing in GitHub Actions?
+5. Should failed runs send an alert email to an admin address rather than only logging to stdout?
 6. Should the Friday "Week in Review" paragraph be a separate email send or appended to the Friday daily digest?
