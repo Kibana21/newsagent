@@ -36,3 +36,4 @@ htmlcov/
 .idea/
 .vscode/
 *.swp
+video-key.json
