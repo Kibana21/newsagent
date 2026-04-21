@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <title>Attention Is All You Need: Revisited</title>
+    <id>https://arxiv.org/abs/2604.00001</id>
+    <published>2026-04-20T00:00:00Z</published>
+    <summary>A revisitation of transformer architectures for insurance risk modelling.</summary>
+  </entry>
+  <entry>
+    <title>LLM-based Claims Automation</title>
+    <id>https://arxiv.org/abs/2604.00002</id>
+    <published>2026-04-19T00:00:00Z</published>
+    <summary>Automated claims processing using large language models.</summary>
+  </entry>
+</feed>

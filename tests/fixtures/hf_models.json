@@ -1,0 +1,16 @@
+[
+  {
+    "modelId": "meta-llama/Llama-3-70b",
+    "tags": ["text-generation", "llm", "instruct"],
+    "downloads": 500000,
+    "lastModified": "2026-04-20T00:00:00Z",
+    "trendingScore": 99.5
+  },
+  {
+    "modelId": "mistralai/Mistral-7B-v0.3",
+    "tags": ["text-generation", "llm"],
+    "downloads": 300000,
+    "lastModified": "2026-04-19T00:00:00Z",
+    "trendingScore": 87.2
+  }
+]

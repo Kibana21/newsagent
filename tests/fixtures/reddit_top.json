@@ -1,0 +1,22 @@
+{
+  "data": {
+    "children": [
+      {
+        "data": {
+          "title": "Llama 3 beats GPT-4 on reasoning tasks",
+          "permalink": "/r/LocalLLaMA/comments/abc123/llama3/",
+          "selftext": "Discussion about Llama 3 performance.",
+          "score": 1200
+        }
+      },
+      {
+        "data": {
+          "title": "Running local LLMs for insurance document processing",
+          "permalink": "/r/LocalLLaMA/comments/def456/insurance/",
+          "selftext": "My experience using local LLMs for insurance docs.",
+          "score": 450
+        }
+      }
+    ]
+  }
+}

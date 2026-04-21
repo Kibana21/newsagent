@@ -1,0 +1,39 @@
+{
+  "business": [
+    {
+      "title": "OpenAI Launches GPT-5 with Insurance Applications",
+      "url": "https://openai.com/blog/gpt-5",
+      "summary": "OpenAI has launched GPT-5 with specific focus on enterprise and insurance applications.",
+      "source": "tavily",
+      "published_at": "2026-04-20",
+      "insurance_score": 3,
+      "competitor": false,
+      "regulatory": false
+    }
+  ],
+  "technical": [
+    {
+      "title": "meta-llama/Llama-3-70b",
+      "url": "https://huggingface.co/meta-llama/Llama-3-70b",
+      "summary": "Tags: text-generation, llm. Downloads: 500000",
+      "source": "huggingface",
+      "published_at": "2026-04-20T00:00:00Z",
+      "insurance_score": 1,
+      "competitor": false,
+      "regulatory": false
+    }
+  ],
+  "research": [],
+  "insurtech": [
+    {
+      "title": "MAS Issues AI Governance Guidelines for Insurers",
+      "url": "https://www.mas.gov.sg/news/ai-guidelines",
+      "summary": "The Monetary Authority of Singapore released comprehensive AI governance guidelines.",
+      "source": "tavily",
+      "published_at": "2026-04-19",
+      "insurance_score": 3,
+      "competitor": false,
+      "regulatory": true
+    }
+  ]
+}

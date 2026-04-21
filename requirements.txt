@@ -1,0 +1,31 @@
+# Orchestration & LLM
+langgraph
+langchain-core
+langchain-google-vertexai
+langchain-tavily
+
+# Google Cloud auth (Vertex AI via service account)
+google-auth
+google-cloud-aiplatform
+
+# Source ingestion
+feedparser
+requests
+youtube-transcript-api
+
+# Rendering & delivery
+markdown
+
+# Scheduler
+apscheduler
+
+# Config
+python-dotenv
+
+# Note: pydantic is a transitive dep of langchain-*. Do NOT pin here unless
+# you hit a LangChain/pydantic version conflict at install time.
+
+# Dev / test
+pytest
+pytest-cov
+mypy

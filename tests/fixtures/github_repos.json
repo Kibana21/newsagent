@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "full_name": "openai/openai-python",
+      "html_url": "https://github.com/openai/openai-python",
+      "description": "The official Python library for the OpenAI API",
+      "stargazers_count": 2500,
+      "created_at": "2026-04-18T00:00:00Z",
+      "pushed_at": "2026-04-20T00:00:00Z"
+    },
+    {
+      "full_name": "anthropics/anthropic-sdk",
+      "html_url": "https://github.com/anthropics/anthropic-sdk",
+      "description": "Anthropic Python SDK",
+      "stargazers_count": 1800,
+      "created_at": "2026-04-17T00:00:00Z",
+      "pushed_at": "2026-04-20T00:00:00Z"
+    }
+  ]
+}

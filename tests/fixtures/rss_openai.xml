@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>OpenAI Blog</title>
+    <link>https://openai.com/blog</link>
+    <item>
+      <title>GPT-5 Released</title>
+      <link>https://openai.com/blog/gpt-5</link>
+      <description>OpenAI releases GPT-5 with improved reasoning.</description>
+      <pubDate>Mon, 20 Apr 2026 10:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>OpenAI for Enterprise</title>
+      <link>https://openai.com/blog/enterprise</link>
+      <description>New enterprise features for large organisations.</description>
+      <pubDate>Sun, 19 Apr 2026 08:00:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>
