@@ -25,6 +25,9 @@ python-dotenv
 # Note: pydantic is a transitive dep of langchain-*. Do NOT pin here unless
 # you hit a LangChain/pydantic version conflict at install time.
 
+# SerpAPI
+google-search-results
+
 # Dev / test
 pytest
 pytest-cov

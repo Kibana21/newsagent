@@ -8,7 +8,7 @@ from src.utils.state_io import recent_urls
 def aggregate_node(state: AgentState) -> dict[str, Any]:
     raw: list[dict[str, Any]] = []
     per_source: dict[str, int] = {}
-    for field in ("tavily_news", "rss_news", "arxiv_news", "github_news",
+    for field in ("rss_news", "arxiv_news", "github_news",
                   "hf_news", "hn_news", "reddit_news", "youtube_news"):
         items: list[Any] = list(state.get(field) or [])  # type: ignore[arg-type, call-overload]
         per_source[field.replace("_news", "")] = len(items)

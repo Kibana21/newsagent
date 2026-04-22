@@ -1,0 +1,430 @@
+[
+  {
+    "name": "AI Trends",
+    "url": "https://news.smol.ai/rss.xml"
+  },
+  {
+    "name": "AI News (artificialintelligence-news.com)",
+    "url": "https://rss.beehiiv.com/feeds/N4eCstxvgX.xml"
+  },
+  {
+    "name": "Google Research Blog",
+    "url": "https://research.google/blog/rss/"
+  },
+  {
+    "name": "Google DeepMind News Blog",
+    "url": "https://deepmind.com/blog/feed/basic/"
+  },
+  {
+    "name": "OpenAI Blog",
+    "url": "https://openai.com/news/rss.xml"
+  },
+  {
+    "name": "OpenAI News",
+    "url": "https://openai.com/news/rss.xml"
+  },
+  {
+    "name": "BAIR (Berkeley AI Research) Blog",
+    "url": "https://bair.berkeley.edu/blog/feed.xml"
+  },
+  {
+    "name": "MIT News — Artificial Intelligence",
+    "url": "https://news.mit.edu/rss/topic/artificial-intelligence2"
+  },
+  {
+    "name": "MIT Technology Review — AI",
+    "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed"
+  },
+  {
+    "name": "Machine Intelligence Research Institute (MIRI)",
+    "url": "https://intelligence.org/feed/"
+  },
+  {
+    "name": "O'Reilly Media — AI & ML",
+    "url": "https://www.oreilly.com/radar/topics/ai-ml/feed/index.xml"
+  },
+  {
+    "name": "KDnuggets",
+    "url": "https://www.kdnuggets.com/feed"
+  },
+  {
+    "name": "TechCrunch — AI",
+    "url": "https://techcrunch.com/category/artificial-intelligence/feed/"
+  },
+  {
+    "name": "VentureBeat — AI",
+    "url": "https://venturebeat.com/category/ai/feed/"
+  },
+  {
+    "name": "Financial Times — Artificial Intelligence",
+    "url": "https://www.ft.com/artificial-intelligence?format=rss"
+  },
+  {
+    "name": "The New York Times — Artificial Intelligence",
+    "url": "https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/spotlight/artificial-intelligence/rss.xml"
+  },
+  {
+    "name": "WIRED — Artificial Intelligence",
+    "url": "https://www.wired.com/feed/tag/ai/latest/rss"
+  },
+  {
+    "name": "Ars Technica — AI",
+    "url": "https://arstechnica.com/ai/feed/"
+  },
+  {
+    "name": "The Guardian — Artificial Intelligence (AI)",
+    "url": "https://www.theguardian.com/technology/artificialintelligenceai/rss"
+  },
+  {
+    "name": "Science News — Artificial Intelligence",
+    "url": "https://www.sciencenews.org/topic/artificial-intelligence/feed"
+  },
+  {
+    "name": "ScienceDaily — Artificial Intelligence News",
+    "url": "https://www.sciencedaily.com/rss/computers_math/artificial_intelligence.xml"
+  },
+  {
+    "name": "Microsoft — AI",
+    "url": "https://news.microsoft.com/source/topics/ai/feed/"
+  },
+  {
+    "name": "AWS News Blog — Artificial Intelligence",
+    "url": "https://aws.amazon.com/blogs/aws/category/artificial-intelligence/feed/"
+  },
+  {
+    "name": "InfoWorld — Artificial Intelligence",
+    "url": "https://www.infoworld.com/artificial-intelligence/feed/"
+  },
+  {
+    "name": "Computerworld — Artificial Intelligence",
+    "url": "https://www.computerworld.com/artificial-intelligence/feed/"
+  },
+  {
+    "name": "Fast Company — Artificial Intelligence",
+    "url": "https://www.fastcompany.com/section/artificial-intelligence/rss"
+  },
+  {
+    "name": "The Verge — AI",
+    "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+  },
+  {
+    "name": "Live Science — Artificial Intelligence",
+    "url": "https://www.livescience.com/feeds/tag/artificial-intelligence"
+  },
+  {
+    "name": "Government Technology News — AI",
+    "url": "https://www.govtech.com/artificial-intelligence.rss"
+  },
+  {
+    "name": "Analytics Vidhya Blog",
+    "url": "https://www.analyticsvidhya.com/feed/"
+  },
+  {
+    "name": "Machine Learning Mastery",
+    "url": "https://machinelearningmastery.com/blog/feed/"
+  },
+  {
+    "name": "AI Weekly",
+    "url": "https://aiweekly.co/issues.rss"
+  },
+  {
+    "name": "AIhub",
+    "url": "https://aihub.org/feed/?cat=-473"
+  },
+  {
+    "name": "AI Summer",
+    "url": "https://theaisummer.com/feed.xml"
+  },
+  {
+    "name": "RStudio AI Blog",
+    "url": "https://blogs.rstudio.com/ai/index.xml"
+  },
+  {
+    "name": "DataRobot Blog",
+    "url": "https://www.datarobot.com/blog/feed/"
+  },
+  {
+    "name": "SAS — Artificial Intelligence",
+    "url": "https://blogs.sas.com/content/topic/artificial-intelligence/feed/"
+  },
+  {
+    "name": "MarkTechPost",
+    "url": "https://www.marktechpost.com/feed/"
+  },
+  {
+    "name": "Big Data Analytics News — AI",
+    "url": "https://bigdataanalyticsnews.com/category/artificial-intelligence/feed/"
+  },
+  {
+    "name": "AI News (artificialintelligence-news.com)",
+    "url": "https://www.artificialintelligence-news.com/feed/"
+  },
+  {
+    "name": "Crunchbase News — AI",
+    "url": "https://news.crunchbase.com/sections/ai/feed/"
+  },
+  {
+    "name": "eWeek — Artificial Intelligence",
+    "url": "https://www.eweek.com/feed/"
+  },
+  {
+    "name": "France 24 — Artificial Intelligence",
+    "url": "https://www.france24.com/en/tag/artificial-intelligence/rss"
+  },
+  {
+    "name": "The Indian Express — Artificial Intelligence",
+    "url": "https://indianexpress.com/section/technology/artificial-intelligence/feed/"
+  },
+  {
+    "name": "Mint — Artificial Intelligence",
+    "url": "https://www.livemint.com/rss/AI"
+  },
+  {
+    "name": "GeekWire — AI",
+    "url": "https://www.geekwire.com/tag/ai/feed/"
+  },
+  {
+    "name": "Adweek — Artificial Intelligence",
+    "url": "https://www.adweek.com/category/artificial-intelligence/feed/"
+  },
+  {
+    "name": "Artificial Lawyer",
+    "url": "https://www.artificiallawyer.com/feed/"
+  },
+  {
+    "name": "Chatbot's Life",
+    "url": "https://rss.beehiiv.com/feeds/W0866OdVPj.xml"
+  },
+  {
+    "name": "Marketing Artificial Intelligence Institute",
+    "url": "https://www.marketingaiinstitute.com/blog/rss.xml"
+  },
+  {
+    "name": "The Rundown AI",
+    "url": "https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml"
+  },
+  {
+    "name": "Data Machina",
+    "url": "https://datamachina.substack.com/feed"
+  },
+  {
+    "name": "Another Datum",
+    "url": "https://anotherdatum.com/feeds/all.atom.xml?format=xml"
+  },
+  {
+    "name": "DatumBox",
+    "url": "http://blog.datumbox.com/feed/"
+  },
+  {
+    "name": "Digital Thought Disruption",
+    "url": "https://digitalthoughtdisruption.com/feed/"
+  },
+  {
+    "name": "Becoming Human",
+    "url": "https://becominghuman.ai/feed"
+  },
+  {
+    "name": "AI Time Journal",
+    "url": "https://www.aitimejournal.com/feed/"
+  },
+  {
+    "name": "Clarifai Blog",
+    "url": "https://www.clarifai.com/blog/rss.xml"
+  },
+  {
+    "name": "Kore.ai",
+    "url": "https://blog.kore.ai/rss.xml"
+  },
+  {
+    "name": "Nanonets Blog",
+    "url": "https://nanonets.com/blog/rss/"
+  },
+  {
+    "name": "Unbabel Blog",
+    "url": "https://unbabel.com/category/blog/feed/"
+  },
+  {
+    "name": "Qudata",
+    "url": "https://qudata.com/en/news/rss.xml"
+  },
+  {
+    "name": "ELEDIA E-AIR",
+    "url": "http://www.eledia.org/e-air/feed/"
+  },
+  {
+    "name": "DLabs.AI Blog — AI",
+    "url": "https://dlabs.ai/feed/"
+  },
+  {
+    "name": "DeepCognition.ai Blog",
+    "url": "https://deepcognition.ai/feed/"
+  },
+  {
+    "name": "DailyAI",
+    "url": "https://dailyai.com/feed/"
+  },
+  {
+    "name": "AI Insider",
+    "url": "https://theaiinsider.tech/feed/"
+  },
+  {
+    "name": "Just AI News",
+    "url": "https://justainews.com/feed/"
+  },
+  {
+    "name": "AI 2 People",
+    "url": "https://ai2people.com/feed/"
+  },
+  {
+    "name": "TechSpective — Artificial Intelligence",
+    "url": "https://techspective.net/category/technology/artificial-intelligence/feed/"
+  },
+  {
+    "name": "NeuroSYS Blog — AI",
+    "url": "https://neurosys.com/blog/category/ai/feed"
+  },
+  {
+    "name": "Fusemachines Insights",
+    "url": "https://insights.fusemachines.com/feed/"
+  },
+  {
+    "name": "Great Learning Blog — AI and Machine Learning",
+    "url": "https://www.mygreatlearning.com/blog/artificial-intelligence/feed/"
+  },
+  {
+    "name": "Vectra AI Blog",
+    "url": "https://www.vectra.ai/blog/rss.xml"
+  },
+  {
+    "name": "Copyleaks Blog",
+    "url": "https://copyleaks.com/blog/feed"
+  },
+  {
+    "name": "GPTZero Blog",
+    "url": "https://gptzero.me/news/rss/"
+  },
+  {
+    "name": "Isentia",
+    "url": "https://www.isentia.com/feed/"
+  },
+  {
+    "name": "viAct.ai Blog",
+    "url": "https://www.viact.ai/blog-feed.xml"
+  },
+  {
+    "name": "Vue.ai Blog",
+    "url": "https://www.vue.ai/blog/feed/"
+  },
+  {
+    "name": "Yseop Blog",
+    "url": "https://yseop.com/category/blog/feed/"
+  },
+  {
+    "name": "SAAL",
+    "url": "https://saal.ai/feed/"
+  },
+  {
+    "name": "Spritle Blog",
+    "url": "https://www.spritle.com/blog/feed/"
+  },
+  {
+    "name": "Shaip Blog",
+    "url": "https://www.shaip.com/feed/"
+  },
+  {
+    "name": "Cogito Tech Blog",
+    "url": "https://www.cogitotech.com/feed/"
+  },
+  {
+    "name": "AIParabellum.com Blog",
+    "url": "https://aiparabellum.com/feed/"
+  },
+  {
+    "name": "Artisse AI Blog",
+    "url": "https://artisse.ai/feed/"
+  },
+  {
+    "name": "Dxcover Blog",
+    "url": "https://www.dxcover.com/feed/"
+  },
+  {
+    "name": "Neysa Newsroom",
+    "url": "https://neysa.ai/feed/"
+  },
+  {
+    "name": "Pandio Blog",
+    "url": "https://pandio.com/feed/"
+  },
+  {
+    "name": "Yatter Blog",
+    "url": "https://yatter.in/feed/"
+  },
+  {
+    "name": "AI Revolution Blog",
+    "url": "https://airevolution.blog/feed/"
+  },
+  {
+    "name": "1redDrop — Artificial Intelligence",
+    "url": "https://1reddrop.com/category/artificial-intelligence/feed/"
+  },
+  {
+    "name": "Top Marketing AI",
+    "url": "https://topmarketingai.com/feed/"
+  },
+  {
+    "name": "MassTLC",
+    "url": "https://www.masstlc.org/category/ai/feed/"
+  },
+  {
+    "name": "Edmonton Journal — Artificial Intelligence",
+    "url": "https://edmontonjournal.com/tag/artificial-intelligence/feed.xml"
+  },
+  {
+    "name": "Scripps News — Artificial Intelligence",
+    "url": "https://www.scrippsnews.com/science-and-tech/artificial-intelligence.rss"
+  },
+  {
+    "name": "AI nyheter",
+    "url": "https://nyheter.aitool.se/feed/"
+  },
+  {
+    "name": "Robot Writers AI",
+    "url": "https://robotwritersai.com/feed/"
+  },
+  {
+    "name": "AIIOT — Artificial Intelligence",
+    "url": "https://www.aiiottalk.com/feed/"
+  },
+  {
+    "name": "Computational Intelligence (Blogspot)",
+    "url": "http://computational-intelligence.blogspot.com/feeds/posts/default"
+  },
+  {
+    "name": "Rainbird AI Blog",
+    "url": "https://rainbird.ai/feed/"
+  },
+  {
+    "name": "Cisco Blogs — AI",
+    "url": "https://blogs.cisco.com/ai/feed"
+  },
+  {
+    "name": "AWS Machine Learning Blog — AI",
+    "url": "https://aws.amazon.com/blogs/machine-learning/category/artificial-intelligence/feed/"
+  },
+  {
+    "name": "AI for Good Blog (ITU)",
+    "url": "https://aiforgood.itu.int/feed/"
+  },
+  {
+    "name": "Analytics India Magazine — AI News",
+    "url": "https://analyticsindiamag.com/ai-news-updates/feed/"
+  },
+  {
+    "name": "The Conversation — Artificial Intelligence (AI)",
+    "url": "https://theconversation.com/topics/artificial-intelligence-ai-90/articles.atom"
+  },
+  {
+    "name": "Federal News Network — Artificial Intelligence",
+    "url": "https://federalnewsnetwork.com/category/technology-main/artificial-intelligence/feed/"
+  }
+]

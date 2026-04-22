@@ -1,36 +1,992 @@
 from __future__ import annotations
+import re
 from datetime import date
 from typing import Any
-import markdown as md
+import markdown as md_lib
 
-INLINE_STYLES = {
-    "h1": "font-family:Arial,sans-serif;font-size:22px;color:#1a1a1a;margin:20px 0 10px;",
-    "h2": "font-family:Arial,sans-serif;font-size:18px;color:#1a1a1a;margin:20px 0 8px;border-bottom:2px solid #e8e8e8;padding-bottom:6px;",
-    "h3": "font-family:Arial,sans-serif;font-size:15px;color:#333;margin:14px 0 6px;",
-    "p":  "font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#333;margin:6px 0;",
-    "ul": "margin:8px 0 14px 20px;padding:0;",
-    "li": "font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#333;margin-bottom:8px;",
-    "a":  "color:#1a73e8;text-decoration:none;",
-    "em": "color:#555;font-style:italic;",
-    "strong": "font-weight:600;",
+# ── AIA brand palette ─────────────────────────────────────────────────────────
+AIA_RED     = "#C8102E"
+AIA_DARK    = "#1A1A2E"
+AIA_TEXT    = "#2D2D2D"
+AIA_MUTED   = "#6B7280"
+AIA_BG      = "#F4F6F9"
+AIA_CARD    = "#FFFFFF"
+AIA_BORDER  = "#E5E7EB"
+
+SECTION_COLORS = {
+    "Model Releases":         "#7C3AED",   # purple
+    "Security Threat Intel":  "#DC2626",   # red
+    "Framework Watch":        "#2563EB",   # blue
+    "Research":               "#059669",   # green
+    "Enterprise Stories":     "#D97706",   # amber
+    "Regulatory Radar":       "#4B5563",   # slate
+    "Business & Strategy":    "#0284C7",   # sky
+    "Emerging Concepts":      "#0D9488",   # teal
+    "InsurTech":              AIA_RED,
+    "Developer Signals":      "#7C3AED",
+    "Executive Signals":      AIA_RED,
+    "Today's Signals":        AIA_RED,
+    "Editor's Take":          AIA_DARK,
+    "AI Lab Pulse":           "#B45309",
+    "Week in Review":         "#1D4ED8",
+    "Steal This Week":        AIA_RED,
+    "Source Health":          "#6B7280",
 }
 
+SEVERITY_STYLES = {
+    "🔴 CRITICAL": f"background:{AIA_RED};color:#fff;",
+    "🟠 HIGH":     "background:#EA580C;color:#fff;",
+    "🟡 MEDIUM":   "background:#D97706;color:#fff;",
+    "🔵 INFO":     "background:#2563EB;color:#fff;",
+}
+
+BADGE_STYLES = {
+    "🔴 Act":      f"background:{AIA_RED};color:#fff;",
+    "🟡 Watch":    "background:#D97706;color:#fff;",
+    "🟢 Aware":    "background:#059669;color:#fff;",
+    "📈":          "background:#D1FAE5;color:#065F46;",
+    "⚠️":          "background:#FEF3C7;color:#92400E;",
+    "✅ Try today": "background:#D1FAE5;color:#065F46;",
+    "⏳ Evaluate": "background:#FEF3C7;color:#92400E;",
+    "❌ Wait":     "background:#F3F4F6;color:#6B7280;",
+    "✅ Production-ready":    "background:#D1FAE5;color:#065F46;",
+    "⏳ Early beta":          "background:#FEF3C7;color:#92400E;",
+    "🔬 Research prototype":  "background:#EDE9FE;color:#5B21B6;",
+    "🏢": "background:#E0F2FE;color:#0369A1;",
+    "⚖️": "background:#F0FDF4;color:#166534;",
+    "🎯": f"background:{AIA_RED}20;color:{AIA_RED};",
+    "📅": "background:#EFF6FF;color:#1D4ED8;",
+}
+
+TRY_COLOR  = {"yes": "#059669", "maybe": "#D97706", "wait": "#9CA3AF"}
+STORY_COLOR = {"✅": "#059669", "⚠️": "#DC2626", "🧪": "#2563EB", "📋": "#6B7280"}
+
+
+# ── Base template ─────────────────────────────────────────────────────────────
+
+def _html_skeleton(title: str, subtitle: str, body: str, report_type: str) -> str:
+    type_labels = {
+        "full": ("AIA GenAI Intelligence", AIA_RED),
+        "dev":  ("AIA Developer Intelligence", "#7C3AED"),
+        "biz":  ("AIA Business Intelligence", "#0284C7"),
+    }
+    display_title, accent = type_labels.get(report_type, ("AIA Intelligence", AIA_RED))
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{title}</title>
+</head>
+<body style="margin:0;padding:0;background:{AIA_BG};font-family:Arial,'Helvetica Neue',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:{AIA_BG};padding:24px 0;">
+<tr><td align="center">
+<table width="680" cellpadding="0" cellspacing="0" style="max-width:680px;width:100%;">
+
+  <!-- Header -->
+  <tr><td style="background:{accent};border-radius:12px 12px 0 0;padding:32px 36px 24px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td>
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.7);text-transform:uppercase;margin-bottom:6px;">AIA Singapore</div>
+          <div style="font-size:26px;font-weight:800;color:#ffffff;line-height:1.2;">{display_title}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.85);margin-top:6px;">{subtitle}</div>
+        </td>
+        <td align="right" style="vertical-align:middle;">
+          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 16px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#fff;">AIA</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.8);letter-spacing:1px;text-transform:uppercase;">Intelligence</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+
+  <!-- Body -->
+  <tr><td style="background:{AIA_CARD};border-radius:0 0 12px 12px;padding:0 0 8px;">
+    {body}
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="padding:16px 0;text-align:center;">
+    <div style="font-size:11px;color:{AIA_MUTED};">
+      Generated by AIA GenAI Intelligence Pipeline · {date.today().strftime("%d %B %Y")}
+    </div>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+
+
+# ── Section card wrapper ──────────────────────────────────────────────────────
+
+def _section_card(emoji: str, title: str, content: str, color: str | None = None) -> str:
+    accent = color or _section_color(title)
+    return f"""
+<div style="margin:0;padding:0 36px 4px;">
+  <div style="border-left:4px solid {accent};background:{AIA_CARD};margin:20px 0 0;border-radius:0 8px 8px 0;overflow:hidden;">
+    <div style="background:{accent}12;padding:12px 18px 10px;border-bottom:1px solid {accent}30;">
+      <span style="font-size:16px;font-weight:700;color:{AIA_DARK};">{emoji} {title}</span>
+    </div>
+    <div style="padding:14px 18px 6px;">
+      {content}
+    </div>
+  </div>
+</div>"""
+
+
+def _section_color(title: str) -> str:
+    for key, color in SECTION_COLORS.items():
+        if key.lower() in title.lower():
+            return color
+    return AIA_MUTED
+
+
+# ── Inline element renderers ──────────────────────────────────────────────────
+
+def _badge(text: str, style: str = "") -> str:
+    base = "display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-right:4px;vertical-align:middle;letter-spacing:0.3px;"
+    return f'<span style="{base}{style}">{text}</span>'
+
+
+def _pill(text: str, bg: str, fg: str = "#fff") -> str:
+    return _badge(text, f"background:{bg};color:{fg};")
+
+
+def _action_badge(text: str) -> str:
+    style = BADGE_STYLES.get(text, f"background:{AIA_BORDER};color:{AIA_TEXT};")
+    return _badge(text, style)
+
+
+def _severity_badge(text: str) -> str:
+    for pat, style in SEVERITY_STYLES.items():
+        if pat in text:
+            return _badge(pat, style)
+    return ""
+
+
+def _item_link(title: str, url: str) -> str:
+    return f'<a href="{url}" style="color:{AIA_DARK};font-weight:600;text-decoration:none;" target="_blank">{title}</a>'
+
+
+def _meta_line(parts: list[str]) -> str:
+    filtered = [p for p in parts if p]
+    if not filtered:
+        return ""
+    return f'<div style="font-size:11px;color:{AIA_MUTED};margin:3px 0 5px;">{" &nbsp;·&nbsp; ".join(filtered)}</div>'
+
+
+def _label_value(label: str, value: str, color: str = AIA_MUTED) -> str:
+    return (
+        f'<div style="font-size:12px;color:{AIA_TEXT};margin:3px 0;">'
+        f'<span style="color:{color};font-weight:600;">{label}</span> {value}</div>'
+    )
+
+
+def _divider() -> str:
+    return f'<hr style="border:none;border-top:1px solid {AIA_BORDER};margin:10px 0;">'
+
+
+def _trend_badge(count: int) -> str:
+    if count >= 3:
+        return _badge(f"🔥 {count} sources", f"background:#FEF3C7;color:#92400E;")
+    return ""
+
+
+# ── Markdown → HTML (for prose sections) ─────────────────────────────────────
+
+def _md(text: str) -> str:
+    """Convert a markdown snippet to plain inline HTML."""
+    if not text:
+        return ""
+    html = md_lib.markdown(text, extensions=["extra"])
+    # Strip wrapping <p> tags for inline use
+    html = re.sub(r"^<p>|</p>$", "", html.strip())
+    return html
+
+
+# ── Reading time banner ───────────────────────────────────────────────────────
+
+def _reading_time_banner(text: str) -> str:
+    # extract "X min read" from the markdown
+    m = re.search(r"\*(\d+ min read)\*", text)
+    mins = m.group(1) if m else ""
+    if not mins:
+        return ""
+    return (
+        f'<div style="background:{AIA_BG};border-radius:6px;padding:8px 36px;'
+        f'font-size:12px;color:{AIA_MUTED};border-bottom:1px solid {AIA_BORDER};">'
+        f'⏱️ {mins}</div>'
+    )
+
+
+# ── Main conversion: Markdown report → themed HTML ───────────────────────────
+
+def to_html(md_text: str, report_type: str = "full") -> str:
+    """
+    Convert a markdown intelligence report to a fully styled AIA-themed HTML page.
+    report_type: "full" | "dev" | "biz"
+    """
+    lines = md_text.split("\n")
+    today_str = date.today().strftime("%d %B %Y")
+    title = ""
+    subtitle = today_str
+
+    # Extract title from first H1
+    for line in lines:
+        if line.startswith("# "):
+            title = line[2:].strip()
+            break
+
+    # Extract reading time for subtitle
+    for line in lines:
+        m = re.search(r"\*(\d+ min read)\*", line)
+        if m:
+            subtitle = f"{today_str} &nbsp;·&nbsp; {m.group(1)}"
+            break
+
+    body_parts: list[str] = []
+    body_parts.append(_reading_time_banner(md_text))
+
+    # Parse sections by H2 headers
+    sections = _split_sections(lines)
+    for sec_title, sec_lines in sections:
+        html = _render_section_html(sec_title, sec_lines)
+        if html:
+            body_parts.append(html)
+
+    body = "\n".join(body_parts)
+    return _html_skeleton(title, subtitle, body, report_type)
+
+
+def _split_sections(lines: list[str]) -> list[tuple[str, list[str]]]:
+    """Split markdown lines into (section_title, content_lines) tuples."""
+    sections: list[tuple[str, list[str]]] = []
+    current_title = "__preamble__"
+    current_lines: list[str] = []
+    for line in lines:
+        if line.startswith("## "):
+            if current_lines:
+                sections.append((current_title, current_lines))
+            current_title = line[3:].strip()
+            current_lines = []
+        else:
+            current_lines.append(line)
+    if current_lines:
+        sections.append((current_title, current_lines))
+    return sections
+
+
+def _render_section_html(title: str, lines: list[str]) -> str:
+    """Route a section to its appropriate HTML renderer."""
+    content_text = "\n".join(lines).strip()
+    if not content_text:
+        return ""
+
+    # Preamble (before first H2) — skip H1, reading time line
+    if title == "__preamble__":
+        return _render_preamble(lines)
+
+    # Detect section type by title keywords
+    tl = title.lower()
+    emoji, bare_title = _split_emoji(title)
+
+    if "editor" in tl or "take" in tl:
+        return _render_prose_section(emoji, bare_title, content_text, SECTION_COLORS.get("Editor's Take", AIA_DARK))
+    if "week in review" in tl:
+        return _render_prose_section(emoji, bare_title, content_text, SECTION_COLORS.get("Week in Review", "#1D4ED8"))
+    if "signal" in tl:
+        return _render_signals_section(emoji, bare_title, lines)
+    if "model release" in tl:
+        return _render_model_section(emoji, bare_title, lines)
+    if "security" in tl:
+        return _render_security_section(emoji, bare_title, lines)
+    if "framework" in tl:
+        return _render_framework_section(emoji, bare_title, lines)
+    if "research" in tl or "eval" in tl:
+        return _render_research_section(emoji, bare_title, lines)
+    if "enterprise" in tl:
+        return _render_enterprise_section(emoji, bare_title, lines)
+    if "regulatory" in tl or "radar" in tl:
+        return _render_regulatory_section(emoji, bare_title, lines)
+    if "lab pulse" in tl or "heatmap" in tl:
+        return _render_heatmap_section(emoji, bare_title, lines)
+    if "emerging" in tl:
+        return _render_emerging_section(emoji, bare_title, lines)
+    if "steal" in tl:
+        return _render_steal_section(emoji, bare_title, lines)
+    if "source health" in tl:
+        return _render_source_health_section(content_text)
+    if "insurtech" in tl or "aia relevance" in tl:
+        return _render_generic_items(emoji, bare_title, lines, _section_color("InsurTech"))
+    if "business" in tl or "strategy" in tl:
+        return _render_generic_items(emoji, bare_title, lines, _section_color("Business & Strategy"))
+
+    # Fallback: generic markdown render
+    html = md_lib.markdown(content_text, extensions=["extra", "sane_lists"])
+    return _section_card(emoji, bare_title, _style_html(html))
+
+
+def _split_emoji(title: str) -> tuple[str, str]:
+    """Separate leading emoji from title text."""
+    # Match common emojis at start
+    m = re.match(r"^([\U00010000-\U0010ffff☀-⛿✀-➿⚡🔐🧰📊🏭🏛️🌡️💼🛠️📌🔬💡🛡️🏢📅⚡]+)\s*(.*)", title)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+    return "", title
+
+
+# ── Preamble / last-week hook ─────────────────────────────────────────────────
+
+def _render_preamble(lines: list[str]) -> str:
+    parts = []
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("# ") or re.match(r"\*\d+ min read\*", line):
+            continue
+        if line.startswith("> "):
+            text = line[2:]
+            parts.append(
+                f'<div style="margin:12px 36px;background:#EFF6FF;border-left:3px solid #2563EB;'
+                f'padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;color:#1E40AF;">'
+                f'{_md(text)}</div>'
+            )
+        elif line.startswith("*Audience:"):
+            parts.append(
+                f'<div style="margin:0 36px 0;padding:6px 14px;background:#F8FAFC;'
+                f'border-radius:6px;font-size:12px;color:{AIA_MUTED};font-style:italic;">'
+                f'{line.strip("*")}</div>'
+            )
+    return "\n".join(parts)
+
+
+# ── Prose section (Editor's Take, Week in Review) ─────────────────────────────
+
+def _render_prose_section(emoji: str, title: str, content: str, color: str) -> str:
+    # Remove count suffixes like "(3)"
+    clean = re.sub(r"\s*\(\d+\)$", "", title)
+    html = md_lib.markdown(content, extensions=["extra"])
+    html = _style_html(html)
+    return _section_card(emoji, clean, html, color)
+
+
+# ── Signals (CEO / CTO / Today's) ────────────────────────────────────────────
+
+def _render_signals_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS.get("Today's Signals", AIA_RED)
+    if "executive" in title.lower():
+        color = SECTION_COLORS.get("Executive Signals", AIA_RED)
+    elif "developer" in title.lower():
+        color = SECTION_COLORS.get("Developer Signals", "#7C3AED")
+
+    items_html = []
+    current_label = ""
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        # italic label lines like "*Executives*" or "*Engineers*"
+        m = re.match(r"^\*([^*]+)\*$", line)
+        if m:
+            current_label = m.group(1)
+            label_color = "#7C3AED" if "engineer" in current_label.lower() else AIA_RED
+            items_html.append(
+                f'<div style="font-size:10px;font-weight:700;letter-spacing:1px;'
+                f'text-transform:uppercase;color:{label_color};margin:10px 0 6px;">'
+                f'{current_label}</div>'
+            )
+            continue
+        if line.startswith("- "):
+            text = line[2:]
+            # Extract action tag *action* at end
+            action_m = re.search(r"\*([^*]+)\*\s*$", text)
+            action_tag = ""
+            if action_m:
+                action_tag = action_m.group(1)
+                text = text[:action_m.start()].strip()
+            # Extract [→](url)
+            link_m = re.search(r"\[→\]\(([^)]+)\)\s*$", text)
+            link_url = ""
+            if link_m:
+                link_url = link_m.group(1)
+                text = text[:link_m.start()].strip()
+            text = _strip_md_bold(text)
+            row = (
+                f'<div style="display:flex;align-items:flex-start;gap:8px;'
+                f'padding:8px 0;border-bottom:1px solid {AIA_BORDER};">'
+                f'<div style="flex:1;font-size:13px;color:{AIA_TEXT};line-height:1.5;">{text}</div>'
+            )
+            if action_tag:
+                row += f'<div style="flex-shrink:0;">{_badge(action_tag, f"background:{color}20;color:{color};border:1px solid {color}50;font-size:10px;")}</div>'
+            if link_url:
+                row += f'<div style="flex-shrink:0;"><a href="{link_url}" style="color:{color};font-size:12px;font-weight:700;text-decoration:none;" target="_blank">→</a></div>'
+            row += '</div>'
+            items_html.append(row)
+
+    return _section_card(emoji, title, "\n".join(items_html), color)
+
+
+# ── Model Releases ────────────────────────────────────────────────────────────
+
+def _render_model_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS["Model Releases"]
+    items = _parse_bullet_items(lines)
+    cards_html = []
+    for item in items:
+        h = _item_card_html(item, color, show_meta=True)
+        cards_html.append(h)
+    return _section_card(emoji, title, "\n".join(cards_html), color)
+
+
+# ── Security Threat Intel ─────────────────────────────────────────────────────
+
+def _render_security_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS["Security Threat Intel"]
+    items = _parse_bullet_items(lines)
+    cards_html = []
+    for item in items:
+        # Check for IMMEDIATE ACTION header above
+        immediate = "IMMEDIATE ACTION" in item.get("prefix_text", "")
+        sev_key = ""
+        sev_style = ""
+        for pat, style in SEVERITY_STYLES.items():
+            if pat in item.get("text", ""):
+                sev_key = pat
+                sev_style = style
+                break
+        card_border = "#DC2626" if "CRITICAL" in sev_key else (
+            "#EA580C" if "HIGH" in sev_key else (
+            "#D97706" if "MEDIUM" in sev_key else "#2563EB"))
+
+        inner = ""
+        if immediate:
+            inner += (f'<div style="background:#FEF2F2;border:1px solid #FECACA;'
+                      f'border-radius:4px;padding:4px 10px;font-size:11px;'
+                      f'font-weight:700;color:#B91C1C;margin-bottom:8px;">⚠️ IMMEDIATE ACTION REQUIRED</div>')
+        if sev_key:
+            inner += _badge(sev_key, sev_style + "font-size:11px;padding:3px 10px;margin-bottom:8px;")
+
+        # Title link
+        title_text, url = _extract_title_url(item.get("text", ""))
+        if title_text:
+            inner += f'<div style="font-size:13px;font-weight:600;margin-bottom:6px;">{_item_link(title_text, url)}</div>'
+
+        # Sub-lines (Attack vector, Affected, Mitigation)
+        for sub in item.get("sub_lines", []):
+            sub = sub.strip()
+            if sub.startswith("*Attack") or sub.startswith("*Mitigation") or sub.startswith("*Affected") or sub.startswith("*AIA"):
+                label_m = re.match(r"\*([^:]+):\*\s*(.*)", sub)
+                if label_m:
+                    lbl, val = label_m.group(1), label_m.group(2)
+                    lbl_color = "#DC2626" if "Attack" in lbl else (
+                               "#059669" if "Mitigation" in lbl else AIA_MUTED)
+                    inner += _label_value(f"{lbl}:", val, lbl_color)
+            elif "🎯" in sub:
+                inner += _badge("🎯 AIA: DIRECT", f"background:{AIA_RED}15;color:{AIA_RED};border:1px solid {AIA_RED}40;margin-top:4px;")
+            elif sub and not sub.startswith("<!--"):
+                inner += f'<div style="font-size:12px;color:{AIA_MUTED};margin-top:2px;">{_md(sub)}</div>'
+
+        cards_html.append(
+            f'<div style="border-left:3px solid {card_border};padding:10px 14px;'
+            f'margin-bottom:10px;background:#FAFAFA;border-radius:0 6px 6px 0;">'
+            f'{inner}</div>'
+        )
+
+    # "This Week in Attacks" blockquote
+    for line in lines:
+        if "This week:" in line and line.strip().startswith(">"):
+            text = line.strip()[1:].strip()
+            cards_html.append(
+                f'<div style="background:#FEF3C7;border-radius:6px;padding:8px 12px;'
+                f'font-size:12px;color:#92400E;margin-top:8px;">{_md(text)}</div>'
+            )
+
+    return _section_card(emoji, title, "\n".join(cards_html), color)
+
+
+# ── Framework Watch ───────────────────────────────────────────────────────────
+
+def _render_framework_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS["Framework Watch"]
+    items = _parse_bullet_items(lines)
+    cards_html = []
+    for item in items:
+        title_text, url = _extract_title_url(item.get("text", ""))
+        inner = f'<div style="font-size:13px;font-weight:600;margin-bottom:6px;">{_item_link(title_text, url)}</div>'
+
+        for sub in item.get("sub_lines", []):
+            sub = sub.strip()
+            if not sub:
+                continue
+            if "Try today" in sub or "Evaluate" in sub or "Wait" in sub or "Production" in sub or "beta" in sub or "prototype" in sub:
+                # Extract badges
+                badges = ""
+                for pat, style in BADGE_STYLES.items():
+                    if pat in sub:
+                        badges += _badge(pat, style)
+                if badges:
+                    inner += f'<div style="margin:4px 0;">{badges}</div>'
+                # Also show the meta text
+                meta_text = re.sub(r"[✅⏳❌🔬].*", "", sub).strip(" ·")
+                if meta_text:
+                    inner += _meta_line([meta_text])
+            elif sub.startswith("*AIA fit:*"):
+                val = sub.replace("*AIA fit:*", "").strip()
+                inner += _label_value("AIA fit:", val, color)
+            else:
+                inner += _meta_line([_strip_md(sub)])
+
+        cards_html.append(
+            f'<div style="border:1px solid {AIA_BORDER};border-radius:8px;'
+            f'padding:12px 14px;margin-bottom:10px;background:{AIA_CARD};">'
+            f'{inner}</div>'
+        )
+
+    return _section_card(emoji, title, "\n".join(cards_html), color)
+
+
+# ── Research & Evals ─────────────────────────────────────────────────────────
+
+def _render_research_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS["Research"]
+    content = "\n".join(lines)
+    html = md_lib.markdown(content, extensions=["extra", "sane_lists"])
+    html = _style_html(html)
+    return _section_card(emoji, title, html, color)
+
+
+# ── Enterprise Stories ────────────────────────────────────────────────────────
+
+def _render_enterprise_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS["Enterprise Stories"]
+    items = _parse_bullet_items(lines)
+    cards_html = []
+    for item in items:
+        text = item.get("text", "")
+        # Find story icon at start
+        story_icon = ""
+        for icon in ["✅", "⚠️", "🧪", "📋"]:
+            if text.startswith(icon):
+                story_icon = icon
+                text = text[len(icon):].strip()
+                break
+        story_color = STORY_COLOR.get(story_icon, AIA_MUTED)
+        title_text, url = _extract_title_url(text)
+
+        inner = (
+            f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+            f'<span style="font-size:16px;">{story_icon}</span>'
+            f'<div style="font-size:13px;font-weight:600;">{_item_link(title_text, url)}</div>'
+            f'</div>'
+        )
+        for sub in item.get("sub_lines", []):
+            sub = sub.strip()
+            if not sub:
+                continue
+            label_m = re.match(r"\*([^:*]+):\*\s*(.*)", sub)
+            if label_m:
+                lbl, val = label_m.group(1), label_m.group(2)
+                lc = "#059669" if "Outcome" in lbl else ("#D97706" if "Lesson" in lbl else AIA_MUTED)
+                inner += _label_value(f"{lbl}:", val, lc)
+            elif "✅ Replicable" in sub or "🤔 Potentially" in sub:
+                inner += _badge(sub.strip(), f"background:{story_color}15;color:{story_color};border:1px solid {story_color}40;margin-top:4px;")
+            else:
+                inner += _meta_line([_strip_md(sub)])
+
+        cards_html.append(
+            f'<div style="border-left:3px solid {story_color};padding:10px 14px;'
+            f'margin-bottom:10px;background:#FAFAFA;border-radius:0 6px 6px 0;">'
+            f'{inner}</div>'
+        )
+
+    return _section_card(emoji, title, "\n".join(cards_html), color)
+
+
+# ── Regulatory Radar ──────────────────────────────────────────────────────────
+
+def _render_regulatory_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS["Regulatory Radar"]
+    items = _parse_bullet_items(lines)
+    cards_html = []
+
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        if line.startswith("📅 **DEADLINE:"):
+            deadline_m = re.search(r"\*\*DEADLINE: ([^*]+)\*\*", line)
+            deadline = deadline_m.group(1) if deadline_m else ""
+            cards_html.append(
+                f'<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;'
+                f'padding:5px 12px;font-size:11px;font-weight:700;color:#1D4ED8;margin-bottom:6px;'
+                f'display:inline-block;">📅 DEADLINE: {deadline}</div><br>'
+            )
+        i += 1
+
+    for item in items:
+        text = item.get("text", "")
+        # Strip action badge prefix
+        urg_color = AIA_MUTED
+        for badge_text, badge_style in BADGE_STYLES.items():
+            if badge_text in text:
+                text = text.replace(badge_text + " · ", "").replace(badge_text, "")
+                if "Act" in badge_text:
+                    urg_color = AIA_RED
+                elif "Watch" in badge_text:
+                    urg_color = "#D97706"
+                break
+
+        title_text, url = _extract_title_url(text)
+        inner = f'<div style="font-size:13px;font-weight:600;margin-bottom:6px;">{_item_link(title_text, url)}</div>'
+
+        for sub in item.get("sub_lines", []):
+            sub = sub.strip()
+            if not sub:
+                continue
+            label_m = re.match(r"\*([^:*]+):\*\s*(.*)", sub)
+            if label_m:
+                lbl, val = label_m.group(1), label_m.group(2)
+                inner += _label_value(f"{lbl}:", val, urg_color)
+            else:
+                inner += _meta_line([_strip_md(sub)])
+
+        cards_html.append(
+            f'<div style="border:1px solid {AIA_BORDER};border-top:3px solid {urg_color};'
+            f'border-radius:6px;padding:12px 14px;margin-bottom:10px;background:{AIA_CARD};">'
+            f'{inner}</div>'
+        )
+
+    return _section_card(emoji, title, "\n".join(cards_html), color)
+
+
+# ── AI Lab Pulse / Heatmap ────────────────────────────────────────────────────
+
+def _render_heatmap_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS["AI Lab Pulse"]
+    LAB_COLORS = {
+        "OpenAI": "#10A37F", "Google": "#4285F4", "Anthropic": "#B07C3E",
+        "Meta": "#1877F2", "Mistral": "#FF6B35", "xAI": "#1DA1F2",
+    }
+    rows = []
+    for line in lines:
+        line = line.strip()
+        m = re.match(r"^-\s+\*\*([^*]+)\*\*\s+[—–-]\s+(.*)", line)
+        if m:
+            lab, update = m.group(1).strip(), m.group(2).strip()
+            lab_color = LAB_COLORS.get(lab, color)
+            rows.append(
+                f'<div style="display:flex;align-items:flex-start;gap:10px;'
+                f'padding:8px 0;border-bottom:1px solid {AIA_BORDER};">'
+                f'<div style="flex-shrink:0;background:{lab_color};color:#fff;'
+                f'font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;'
+                f'min-width:60px;text-align:center;">{lab}</div>'
+                f'<div style="font-size:13px;color:{AIA_TEXT};line-height:1.4;">{update}</div>'
+                f'</div>'
+            )
+    return _section_card(emoji, title, "\n".join(rows), color)
+
+
+# ── Emerging Concepts ─────────────────────────────────────────────────────────
+
+def _render_emerging_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = SECTION_COLORS["Emerging Concepts"]
+    items = _parse_bullet_items(lines)
+    cards_html = []
+    for item in items:
+        title_text, url = _extract_title_url(item.get("text", ""))
+        inner = f'<div style="font-size:13px;font-weight:600;margin-bottom:6px;">{_item_link(title_text, url)}</div>'
+
+        for sub in item.get("sub_lines", []):
+            sub = sub.strip()
+            if not sub:
+                continue
+            if sub.startswith("*For engineers:*"):
+                val = sub.replace("*For engineers:*", "").strip()
+                inner += (
+                    f'<div style="background:#EDE9FE;border-radius:4px;padding:6px 10px;'
+                    f'margin:4px 0;font-size:12px;color:#4C1D95;">'
+                    f'<span style="font-weight:700;color:#7C3AED;">Engineers</span> {val}</div>'
+                )
+            elif sub.startswith("*For leadership:*"):
+                val = sub.replace("*For leadership:*", "").strip()
+                inner += (
+                    f'<div style="background:#ECFDF5;border-radius:4px;padding:6px 10px;'
+                    f'margin:4px 0;font-size:12px;color:#065F46;">'
+                    f'<span style="font-weight:700;color:#059669;">Leadership</span> {val}</div>'
+                )
+            elif "maturity:" in sub or "horizon:" in sub:
+                inner += _meta_line([_strip_md(sub)])
+            else:
+                inner += _meta_line([_strip_md(sub)])
+
+        cards_html.append(
+            f'<div style="border:1px solid {AIA_BORDER};border-top:3px solid {color};'
+            f'border-radius:6px;padding:12px 14px;margin-bottom:10px;">'
+            f'{inner}</div>'
+        )
+
+    return _section_card(emoji, title, "\n".join(cards_html), color)
+
+
+# ── Steal This Week ───────────────────────────────────────────────────────────
+
+def _render_steal_section(emoji: str, title: str, lines: list[str]) -> str:
+    color = AIA_RED
+    content = "\n".join(lines).strip()
+    # Find product title (first bold line)
+    product_title = ""
+    what = ""
+    why_now = ""
+    meta = ""
+    for line in lines:
+        line = line.strip()
+        if re.match(r"^\*\*[^*]+\*\*$", line) and not product_title:
+            product_title = line.strip("*")
+        elif line.startswith("*Why now:*"):
+            why_now = line.replace("*Why now:*", "").strip()
+        elif line.startswith("*") and "·" in line and not line.startswith("*Why"):
+            meta = line.strip("*")
+        elif line and not line.startswith("#") and not product_title:
+            pass
+        elif line and not line.startswith("*") and not line.startswith("#") and product_title and not what:
+            what = line
+
+    inner = ""
+    if product_title:
+        inner += f'<div style="font-size:16px;font-weight:700;color:{AIA_RED};margin-bottom:8px;">💡 {product_title}</div>'
+    if what:
+        inner += f'<div style="font-size:13px;color:{AIA_TEXT};line-height:1.5;margin-bottom:8px;">{what}</div>'
+    if why_now:
+        inner += (
+            f'<div style="background:#FFF1F2;border-left:3px solid {AIA_RED};'
+            f'padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;'
+            f'color:#9F1239;margin-bottom:8px;">'
+            f'<strong>Why now:</strong> {why_now}</div>'
+        )
+    if meta:
+        parts = [p.strip() for p in meta.split("·")]
+        badges_html = "".join(_badge(p, f"background:{AIA_RED}15;color:{AIA_RED};border:1px solid {AIA_RED}30;") for p in parts if p)
+        inner += f'<div style="margin-top:4px;">{badges_html}</div>'
+
+    if not inner:
+        html = md_lib.markdown(content, extensions=["extra"])
+        inner = _style_html(html)
+
+    return _section_card(emoji, title, inner, color)
+
+
+# ── Source Health ─────────────────────────────────────────────────────────────
+
+def _render_source_health_section(content: str) -> str:
+    # Parse "Source: N ✅/❌" pattern
+    m = re.search(r"((?:\w+: \d+ [✅❌] ?· ?)+(?:\w+: \d+ [✅❌]))", content)
+    if not m:
+        return ""
+    parts = re.findall(r"(\w+): (\d+) ([✅❌])", m.group(0))
+    cells = []
+    for source, count, status in parts:
+        ok = status == "✅"
+        bg = "#ECFDF5" if ok else "#FEF2F2"
+        fg = "#059669" if ok else "#DC2626"
+        cells.append(
+            f'<div style="text-align:center;background:{bg};border-radius:6px;padding:6px 10px;'
+            f'min-width:60px;">'
+            f'<div style="font-size:10px;color:{AIA_MUTED};">{source}</div>'
+            f'<div style="font-size:14px;font-weight:700;color:{fg};">{status} {count}</div>'
+            f'</div>'
+        )
+    grid = (
+        f'<div style="display:flex;flex-wrap:wrap;gap:8px;padding:4px 0;">'
+        + "\n".join(cells) +
+        f'</div>'
+    )
+    return (
+        f'<div style="margin:0 36px 20px;padding:14px 18px;background:{AIA_BG};'
+        f'border-radius:8px;">'
+        f'<div style="font-size:11px;font-weight:700;color:{AIA_MUTED};'
+        f'letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Source Health</div>'
+        f'{grid}</div>'
+    )
+
+
+# ── Generic item list ─────────────────────────────────────────────────────────
+
+def _render_generic_items(emoji: str, title: str, lines: list[str], color: str) -> str:
+    items = _parse_bullet_items(lines)
+    cards = []
+    for item in items:
+        h = _item_card_html(item, color, show_meta=True)
+        cards.append(h)
+    return _section_card(emoji, title, "\n".join(cards), color)
+
+
+def _item_card_html(item: dict[str, Any], color: str, show_meta: bool = True) -> str:
+    text = item.get("text", "")
+    prefix_badges = _extract_prefix_badges(text)
+    text_no_prefix = _strip_prefix_badges(text)
+    title_text, url = _extract_title_url(text_no_prefix)
+    trend = item.get("trend", "")
+
+    inner = ""
+    if prefix_badges:
+        inner += f'<div style="margin-bottom:6px;">{"".join(prefix_badges)}</div>'
+    inner += f'<div style="font-size:13px;font-weight:600;margin-bottom:4px;">'
+    inner += _item_link(title_text, url)
+    if trend:
+        inner += " " + _badge(trend, "background:#FEF3C7;color:#92400E;font-size:10px;")
+    inner += '</div>'
+
+    for sub in item.get("sub_lines", []):
+        sub = sub.strip()
+        if not sub:
+            continue
+        # Freshness tag
+        if sub.startswith("🕐") or sub.startswith("📅") or "hours ago" in sub or "days ago" in sub:
+            inner += f'<div style="font-size:11px;color:{AIA_MUTED};margin:2px 0;">{sub}</div>'
+        # Label: value lines
+        elif re.match(r"^\*[^:*]+:\*", sub):
+            label_m = re.match(r"\*([^:*]+):\*\s*(.*)", sub)
+            if label_m:
+                inner += _label_value(f"{label_m.group(1)}:", label_m.group(2), color)
+        else:
+            inner += f'<div style="font-size:12px;color:{AIA_MUTED};line-height:1.4;margin:2px 0;">{_strip_md(sub)}</div>'
+
+    return (
+        f'<div style="border:1px solid {AIA_BORDER};border-radius:8px;'
+        f'padding:12px 14px;margin-bottom:10px;background:{AIA_CARD};">'
+        f'{inner}</div>'
+    )
+
+
+# ── Parsing helpers ───────────────────────────────────────────────────────────
+
+def _parse_bullet_items(lines: list[str]) -> list[dict[str, Any]]:
+    """Parse markdown bullet list into structured items with sub-lines."""
+    items: list[dict[str, Any]] = []
+    current: dict[str, Any] | None = None
+    for line in lines:
+        if line.startswith("- "):
+            if current:
+                items.append(current)
+            text = line[2:].strip()
+            # Detect trend badge
+            trend = ""
+            t_m = re.search(r"🔥 Trending across \d+ sources", text)
+            if t_m:
+                trend = t_m.group(0)
+                text = text.replace(t_m.group(0), "").strip()
+            current = {"text": text, "sub_lines": [], "trend": trend}
+        elif line.startswith("  ") and current is not None:
+            current["sub_lines"].append(line.strip())
+        elif line.strip().startswith("⚠️ **IMMEDIATE") and current is None:
+            current = {"text": "", "sub_lines": [], "trend": "", "prefix_text": line.strip()}
+    if current:
+        items.append(current)
+    return items
+
+
+def _extract_title_url(text: str) -> tuple[str, str]:
+    """Extract title and URL from **[title](url)** pattern."""
+    m = re.search(r"\*?\*?\[([^\]]+)\]\(([^)]+)\)\*?\*?", text)
+    if m:
+        return m.group(1), m.group(2)
+    # Plain bold text
+    m2 = re.search(r"\*\*([^*]+)\*\*", text)
+    if m2:
+        return m2.group(1), "#"
+    return text[:80], "#"
+
+
+def _extract_prefix_badges(text: str) -> list[str]:
+    badges = []
+    for pat, style in {**BADGE_STYLES, **SEVERITY_STYLES}.items():
+        if pat in text:
+            badges.append(_badge(pat, style))
+    return badges
+
+
+def _strip_prefix_badges(text: str) -> str:
+    for pat in list(BADGE_STYLES.keys()) + list(SEVERITY_STYLES.keys()):
+        text = text.replace(pat + " · ", "").replace(pat, "")
+    return text.strip(" ·")
+
+
+def _strip_md_bold(text: str) -> str:
+    return re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
+
+
+def _strip_md(text: str) -> str:
+    """Convert basic markdown to plain text."""
+    text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
+    text = re.sub(r"\*([^*]+)\*", r"\1", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    return text
+
+
+def _style_html(html: str) -> str:
+    """Apply inline styles to raw markdown-generated HTML."""
+    subs = [
+        (r"<h1([^>]*)>", f'<h1\\1 style="font-size:20px;font-weight:800;color:{AIA_DARK};margin:12px 0 8px;">'),
+        (r"<h2([^>]*)>", f'<h2\\1 style="font-size:16px;font-weight:700;color:{AIA_DARK};margin:14px 0 6px;border-bottom:1px solid {AIA_BORDER};padding-bottom:4px;">'),
+        (r"<h3([^>]*)>", f'<h3\\1 style="font-size:14px;font-weight:700;color:{AIA_DARK};margin:10px 0 4px;">'),
+        (r"<h4([^>]*)>", f'<h4\\1 style="font-size:13px;font-weight:600;color:{AIA_MUTED};margin:8px 0 3px;">'),
+        (r"<p([^>]*)>",  f'<p\\1 style="font-size:13px;line-height:1.6;color:{AIA_TEXT};margin:6px 0;">'),
+        (r"<ul([^>]*)>", f'<ul\\1 style="margin:8px 0;padding-left:18px;">'),
+        (r"<li([^>]*)>", f'<li\\1 style="font-size:13px;line-height:1.6;color:{AIA_TEXT};margin-bottom:6px;">'),
+        (r"<a ([^>]*)href=\"([^\"]+)\"([^>]*)>",
+         f'<a \\1href="\\2"\\3 style="color:{AIA_DARK};font-weight:600;text-decoration:none;" target="_blank">'),
+        (r"<strong([^>]*)>", f'<strong\\1 style="font-weight:700;color:{AIA_DARK};">'),
+        (r"<em([^>]*)>",     f'<em\\1 style="color:{AIA_MUTED};font-style:italic;">'),
+        (r"<blockquote([^>]*)>",
+         f'<blockquote\\1 style="margin:8px 0;padding:8px 14px;background:#EFF6FF;'
+         f'border-left:3px solid #2563EB;border-radius:0 6px 6px 0;font-size:13px;color:#1E40AF;">'),
+        (r"<code([^>]*)>",   f'<code\\1 style="background:#F3F4F6;padding:1px 5px;border-radius:3px;font-size:12px;font-family:monospace;color:#374151;">'),
+    ]
+    for pattern, replacement in subs:
+        html = re.sub(pattern, replacement, html)
+    return html
+
+
+# ── Feedback footer ───────────────────────────────────────────────────────────
+
+def _render_feedback_html(content: str) -> str:
+    m_good = re.search(r"\[👍[^\]]+\]\(([^)]+)\)", content)
+    m_poor = re.search(r"\[👎[^\]]+\]\(([^)]+)\)", content)
+    if not m_good:
+        return ""
+    good_url = m_good.group(1)
+    poor_url = m_poor.group(1) if m_poor else "#"
+    btn = lambda url, icon, label, bg: (
+        f'<a href="{url}" style="display:inline-block;background:{bg};color:#fff;'
+        f'font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;'
+        f'text-decoration:none;margin:0 6px;">{icon} {label}</a>'
+    )
+    return (
+        f'<div style="text-align:center;padding:20px 36px;border-top:1px solid {AIA_BORDER};">'
+        f'<div style="font-size:12px;color:{AIA_MUTED};margin-bottom:10px;">Was today\'s edition useful?</div>'
+        f'{btn(good_url, "👍", "Yes, this helped", "#059669")}'
+        f'{btn(poor_url, "👎", "Needs improvement", "#6B7280")}'
+        f'</div>'
+    )
+
+
+# ── Legacy functions (kept for email_node / monthly compatibility) ─────────────
 
 def render_monthly(items: list[dict[str, Any]], llm_data: dict[str, Any]) -> str:
+    import markdown as _md
     month = date.today().strftime("%B %Y")
     lines = [
-        f"# AIA GenAI Intelligence — {month} Top 10",
-        "",
+        f"# AIA GenAI Intelligence — {month} Top 10", "",
         "The month's most important GenAI developments for APAC life insurers,",
-        "ranked by cross-source buzz × AIA relevance.",
-        "",
+        "ranked by cross-source buzz × AIA relevance.", "",
     ]
     opening = (llm_data.get("opening") or "").strip()
     if opening:
         lines += ["## This Month's Theme", "", opening, ""]
-
     rationales = {r["url"]: r["sentence"] for r in llm_data.get("rationales", []) if "url" in r}
-
     lines += ["## Best of the Month", ""]
     for rank, item in enumerate(items, start=1):
         title = item.get("title", "(no title)")
@@ -42,12 +998,11 @@ def render_monthly(items: list[dict[str, Any]], llm_data: dict[str, Any]) -> str
         if rationale:
             lines.append(f"   _{rationale}_")
         lines.append("")
-
     return "\n".join(lines)
 
 
 def markdown_to_email_html(md_text: str) -> str:
-    html = md.markdown(md_text, extensions=["extra", "sane_lists"])
-    for tag, style in INLINE_STYLES.items():
-        html = html.replace(f"<{tag}>", f'<{tag} style="{style}">')
-    return f'<div style="max-width:720px;margin:0 auto;padding:24px;background:#fff;">{html}</div>'
+    """Legacy: simple markdown → HTML for email_node."""
+    html = md_lib.markdown(md_text, extensions=["extra", "sane_lists"])
+    styled = _style_html(html)
+    return f'<div style="max-width:720px;margin:0 auto;padding:24px;background:#fff;">{styled}</div>'

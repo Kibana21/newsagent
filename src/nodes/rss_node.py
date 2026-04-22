@@ -14,7 +14,8 @@ def rss_node(state: AgentState) -> dict[str, Any]:
     for name, url in RSS_FEEDS:
         try:
             feed = feedparser.parse(url)
-            for entry in feed.entries[:5]:
+            count = 0
+            for entry in feed.entries[:15]:
                 pub = entry.get("published_parsed") or entry.get("updated_parsed")
                 if pub:
                     dt = datetime(pub[0], pub[1], pub[2], pub[3], pub[4], pub[5], tzinfo=timezone.utc)
@@ -30,7 +31,10 @@ def rss_node(state: AgentState) -> dict[str, Any]:
                     "source": "rss",
                     "published_at": published_iso,
                 })
+                count += 1
+            if count:
+                print(f"[rss] {name}: {count} items")
         except Exception as e:
             print(f"[rss_node] error on {name}: {e}")
-    print(f"[rss] got {len(items[:8])} items")
-    return {"rss_news": items[:8]}
+    print(f"[rss] total: {len(items)} items")
+    return {"rss_news": items}

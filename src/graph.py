@@ -1,7 +1,6 @@
 from __future__ import annotations
 from langgraph.graph import StateGraph, START, END
 from src.state import AgentState
-from src.nodes.tavily_node import tavily_node
 from src.nodes.rss_node import rss_node
 from src.nodes.arxiv_node import arxiv_node
 from src.nodes.github_node import github_node
@@ -19,7 +18,6 @@ def build_graph():
     g = StateGraph(AgentState)
 
     fetchers = [
-        ("tavily", tavily_node),
         ("rss", rss_node),
         ("arxiv", arxiv_node),
         ("github", github_node),

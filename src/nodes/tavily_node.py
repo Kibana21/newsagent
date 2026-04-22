@@ -34,9 +34,20 @@ def tavily_node(state: AgentState) -> dict[str, Any]:
     try:
         print("[tavily] searching...")
         tool = TavilySearch(api_key=api_key, max_results=8)
-        q1 = f"{query} (published in the last {days} days)"
-        q2 = f"AI insurance underwriting claims Singapore APAC {year}"
-        items = _search(tool, q1, max_results=5) + _search(tool, q2, max_results=3)
+        queries = [
+            # General AI
+            f"{query} (published in the last {days} days)",
+            f"generative AI enterprise news breakthroughs {year}",
+            # Singapore financial sector AI
+            f"DBS OCBC UOB Singapore bank AI artificial intelligence {year}",
+            f"Prudential Great Eastern Singapore insurance AI digital transformation {year}",
+            f"Singapore MAS IMDA AI regulation fintech insurtech {year}",
+            # APAC competitive landscape
+            f"APAC financial services AI deployment case study {year}",
+        ]
+        items: list[NewsItem] = []
+        for q in queries:
+            items.extend(_search(tool, q, max_results=4))
         print(f"[tavily] got {len(items)} items")
         return {"tavily_news": items}
     except Exception as e:

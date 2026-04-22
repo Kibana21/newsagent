@@ -1,5 +1,5 @@
 {
-  "business": [
+  "models": [
     {
       "title": "OpenAI Launches GPT-5 with Insurance Applications",
       "url": "https://openai.com/blog/gpt-5",
@@ -8,10 +8,13 @@
       "published_at": "2026-04-20",
       "insurance_score": 3,
       "competitor": false,
-      "regulatory": false
+      "regulatory": false,
+      "action_signal": "act",
+      "sentiment": "opportunity",
+      "quality_score": 3
     }
   ],
-  "technical": [
+  "frameworks": [
     {
       "title": "meta-llama/Llama-3-70b",
       "url": "https://huggingface.co/meta-llama/Llama-3-70b",
@@ -20,10 +23,17 @@
       "published_at": "2026-04-20T00:00:00Z",
       "insurance_score": 1,
       "competitor": false,
-      "regulatory": false
+      "regulatory": false,
+      "action_signal": "aware",
+      "sentiment": "neutral",
+      "quality_score": 2
     }
   ],
+  "security": [],
   "research": [],
+  "enterprise": [],
+  "regulatory": [],
+  "business": [],
   "insurtech": [
     {
       "title": "MAS Issues AI Governance Guidelines for Insurers",
@@ -33,7 +43,12 @@
       "published_at": "2026-04-19",
       "insurance_score": 3,
       "competitor": false,
-      "regulatory": true
+      "regulatory": true,
+      "action_signal": "act",
+      "sentiment": "risk",
+      "quality_score": 3
     }
-  ]
+  ],
+  "emerging": [],
+  "dropped": []
 }

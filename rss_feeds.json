@@ -1,0 +1,122 @@
+[
+  {
+    "name": "OpenAI Blog",
+    "url": "https://openai.com/news/rss.xml",
+    "tags": ["ai", "models"]
+  },
+  {
+    "name": "Google AI Blog",
+    "url": "https://research.google/blog/rss/",
+    "tags": ["ai", "research", "models"]
+  },
+  {
+    "name": "NVIDIA AI News",
+    "url": "https://blogs.nvidia.com/blog/category/ai/feed/",
+    "tags": ["ai", "hardware", "enterprise"]
+  },
+  {
+    "name": "AI Weekly",
+    "url": "https://aiweekly.co/rss",
+    "tags": ["ai", "news", "research"]
+  },
+  {
+    "name": "AI Trends",
+    "url": "https://www.aitrends.com/feed/",
+    "tags": ["ai", "enterprise", "trends"]
+  },
+  {
+    "name": "AI Business",
+    "url": "https://aibusiness.com/rss.xml",
+    "tags": ["ai", "business", "enterprise"]
+  },
+  {
+    "name": "AI News",
+    "url": "https://artificialintelligence-news.com/feed/",
+    "tags": ["ai", "news", "trends"]
+  },
+  {
+    "name": "TechCrunch AI",
+    "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+    "tags": ["ai", "business"]
+  },
+  {
+    "name": "VentureBeat AI",
+    "url": "https://venturebeat.com/category/ai/feed/",
+    "tags": ["ai", "enterprise"]
+  },
+  {
+    "name": "The Register AI",
+    "url": "https://www.theregister.com/software/ai_ml/headlines.atom",
+    "tags": ["ai", "security"]
+  },
+  {
+    "name": "MIT Technology Review",
+    "url": "https://www.technologyreview.com/feed/",
+    "tags": ["ai", "research"]
+  },
+  {
+    "name": "Ars Technica",
+    "url": "https://feeds.arstechnica.com/arstechnica/index",
+    "tags": ["tech", "ai"]
+  },
+  {
+    "name": "AWS Machine Learning Blog",
+    "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+    "tags": ["ai", "frameworks", "cloud"]
+  },
+  {
+    "name": "Microsoft AI Blog",
+    "url": "https://blogs.microsoft.com/ai/feed/",
+    "tags": ["ai", "enterprise", "models"]
+  },
+  {
+    "name": "Fintech News Singapore",
+    "url": "https://fintechnews.sg/feed/",
+    "tags": ["singapore", "fintech", "insurtech"]
+  },
+  {
+    "name": "e27 Singapore",
+    "url": "https://e27.co/feed/",
+    "tags": ["singapore", "startups", "business"]
+  },
+  {
+    "name": "Asian Banking & Finance",
+    "url": "https://asianbankingandfinance.net/rss.xml",
+    "tags": ["apac", "banking", "insurtech"]
+  },
+  {
+    "name": "Insurance Asia",
+    "url": "https://insuranceasia.com/rss.xml",
+    "tags": ["apac", "insurance", "insurtech"]
+  },
+  {
+    "name": "Tech in Asia",
+    "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed",
+    "tags": ["apac", "startups", "tech"]
+  },
+  {
+    "name": "Berkley AI Research (BAIR) Blog",
+    "url": "https://bair.berkeley.edu/blog/feed.xml",
+    "tags": ["apac", "business", "tech"]
+  },
+  {
+    "name": "MIT Tech Podcast",
+    "url": "https://news.mit.edu/rss/topic/artificial-intelligence2",
+    "tags": ["mit", "startups", "tech"]
+  },
+  {
+    "name": "Intelligence Org",
+    "url": "https://intelligence.org/feed/",
+    "tags": ["alignment", "research", "ai safety"]
+  },
+  {
+    "name": "LessWrong",
+    "url": "https://www.oreilly.com/radar/topics/ai-ml/feed/",
+    "tags": ["alignment", "rationality", "ai safety"]
+  },
+  {
+    "name": "AI Safety Camp",
+    "url": "https://www.kdnuggets.com/feed",
+    "tags": ["alignment", "research", "ai safety"]
+  }
+]

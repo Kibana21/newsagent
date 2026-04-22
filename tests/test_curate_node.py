@@ -28,7 +28,9 @@ def test_retries_on_bad_json():
     bad = MagicMock()
     bad.content = "not json"
     good = MagicMock()
-    good.content = json.dumps({"business": [], "technical": [], "research": [], "insurtech": []})
+    good.content = json.dumps({"business": [], "models": [], "frameworks": [], "security": [],
+                               "research": [], "enterprise": [], "regulatory": [],
+                               "insurtech": [], "emerging": []})
     fake = MagicMock()
     fake.invoke.side_effect = [bad, good]
     with patch("src.nodes.curate_node.get_llm", return_value=fake):
@@ -48,5 +50,6 @@ def test_raises_after_three_bad_attempts():
 def test_empty_raw_returns_empty_categories():
     out = curate_node({"raw_news": [], "buzz_scores": {}})
     assert out["curated_news"] == []
-    for k in ("business", "technical", "research", "insurtech"):
+    for k in ("models", "frameworks", "security", "research",
+              "enterprise", "regulatory", "business", "insurtech", "emerging"):
         assert out["categorized_news"][k] == []
